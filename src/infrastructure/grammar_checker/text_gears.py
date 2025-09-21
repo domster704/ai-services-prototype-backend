@@ -2,13 +2,16 @@ import aiohttp
 
 from src.application.interfaces.text_gears import ITextGears
 from src.config.settings import settings
-from src.domain.text_gears.entities import TextGearsGrammarCheckerObject, TextToCheck
+from src.domain.text_gears.entities import (
+    TextGearsGrammarCheckerObject,
+    TextGearsTextToCheck,
+)
 from src.infrastructure.exceptions import InfrastructureError, RapidApiError
 
 
 class TextGearsRapidApi(ITextGears):
     async def grammar_check(
-        self, text_to_check: TextToCheck
+        self, text_to_check: TextGearsTextToCheck
     ) -> TextGearsGrammarCheckerObject:
         try:
             async with aiohttp.ClientSession(

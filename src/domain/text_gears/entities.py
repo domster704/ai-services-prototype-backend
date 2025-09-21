@@ -26,7 +26,7 @@ MAX_TEXT_GEARS_STR_LENGTH: int = 8192
 
 
 @dataclass(eq=True, frozen=True)
-class TextToCheck:
+class TextGearsTextToCheck:
     text: str
     language: str
 

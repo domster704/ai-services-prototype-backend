@@ -1,6 +1,9 @@
 from typing import Protocol
 
-from src.domain.text_gears.entities import TextGearsGrammarCheckerObject, TextToCheck
+from src.domain.text_gears.entities import (
+    TextGearsTextToCheck,
+)
+from src.domain.trinka_grammar_checker.entities import TrinkaCheckResult
 
 
 class ITextGears(Protocol):
@@ -13,16 +16,16 @@ class ITextGears(Protocol):
     """
 
     async def grammar_check(
-        self, text_to_check: TextToCheck
-    ) -> TextGearsGrammarCheckerObject:
+        self, text_to_check: TextGearsTextToCheck
+    ) -> TrinkaCheckResult:
         """
         Проверяет текст с помощью API TextGears (/grammar)
 
         Args:
-            text_to_check (TextToCheck): объект с текстом и языком для проверки грамматики
+            text_to_check (TextGearsTextToCheck): объект с текстом и языком для проверки грамматики
 
         Returns:
-            TextGearsGrammarCheckerObject: объект с результатом проверки и списком ошибок
+            TrinkaCheckResult: объект с результатом проверки и списком ошибок
 
         Raises:
             InfrastructureError: если произошла ошибка при обращении к API или при обработке ответа
