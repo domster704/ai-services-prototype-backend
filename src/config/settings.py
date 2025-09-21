@@ -8,6 +8,7 @@ ROOT_PATH = Path(sys.path[1])
 
 class Settings(BaseSettings):
     rapid_api_key: str
+    proxy_url: str
 
     model_config = SettingsConfigDict(
         env_file=ROOT_PATH / ".env",
