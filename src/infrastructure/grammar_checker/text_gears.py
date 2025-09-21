@@ -1,10 +1,12 @@
 import aiohttp
+from dacite import from_dict, Config
 
 from src.application.interfaces.text_gears import ITextGears
 from src.config.settings import settings
 from src.domain.text_gears.entities import (
     TextGearsGrammarCheckerObject,
     TextGearsTextToCheck,
+    ErrorType,
 )
 from src.infrastructure.exceptions import InfrastructureError, RapidApiError
 
@@ -35,6 +37,10 @@ class TextGearsRapidApi(ITextGears):
                             f"Запрос не удался. Код ответа: {resp.status}. Текст ошибки: {resp.text}"
                         )
                     data = await resp.json()
-                    return TextGearsGrammarCheckerObject(**data)
+                    return from_dict(
+                        data_class=TextGearsGrammarCheckerObject,
+                        data=data,
+                        config=Config(cast=[ErrorType]),
+                    )
         except aiohttp.ClientError as e:
             raise InfrastructureError(e)

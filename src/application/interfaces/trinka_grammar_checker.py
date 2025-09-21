@@ -1,9 +1,5 @@
 from typing import Protocol
 
-from src.domain.text_gears.entities import (
-    TextGearsGrammarCheckerObject,
-    TextGearsTextToCheck,
-)
 from src.domain.trinka_grammar_checker.entities import (
     TrinkaTextToCheck,
     TrinkaCheckResult,

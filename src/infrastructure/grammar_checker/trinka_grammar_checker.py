@@ -1,4 +1,5 @@
 import aiohttp
+from dacite import from_dict
 
 from src.application.interfaces.trinka_grammar_checker import ITrinkaGrammarChecker
 from src.config.settings import settings
@@ -34,6 +35,8 @@ class TrinkaGrammarCheckerRapidApi(ITrinkaGrammarChecker):
                             f"Запрос не удался. Код ответа: {resp.status}. Текст ошибки: {resp.text}"
                         )
                     data: list[TrinkaItem] = await resp.json()
-                    return TrinkaCheckResult(sentences=data)
+                    return from_dict(
+                        data_class=TrinkaCheckResult, data={"sentences": data}
+                    )
         except aiohttp.ClientError as e:
             raise InfrastructureError(e)
