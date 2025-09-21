@@ -20,8 +20,23 @@ class GrammarCheckBody(BaseModel):
     paragraph: str
     language: str
 
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "text": "Exmaple text with errrosr",
+                    "language": "en",
+                }
+            ]
+        }
+    }
 
-@router_trinka_grammar_checker.post("/grammar", status_code=200)
+
+@router_trinka_grammar_checker.post(
+    "/grammar",
+    status_code=200,
+    summary="Грамматическая проверка текста через Trinka Grammar Checker с помощью RapidAPI",
+)
 async def translate(
     body: GrammarCheckBody,
     handler: GrammarCheckerHandler = Depends(get_grammar_checker_handler),

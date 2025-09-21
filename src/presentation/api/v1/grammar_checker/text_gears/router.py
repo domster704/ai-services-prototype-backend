@@ -20,8 +20,23 @@ class GrammarCheckBody(BaseModel):
     text: str
     language: str
 
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "text": "Exmaple text with errrosr",
+                    "language": "en-US",
+                }
+            ]
+        }
+    }
 
-@router_text_gears.post("/grammar", status_code=200)
+
+@router_text_gears.post(
+    "/grammar",
+    status_code=200,
+    summary="Грамматическая проверка текста через TextGears с помощью RapidAPI",
+)
 async def translate(
     body: GrammarCheckBody,
     handler: GrammarCheckerHandler = Depends(get_grammar_checker_handler),

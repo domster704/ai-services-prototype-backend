@@ -6,6 +6,15 @@ from src.infrastructure.grammar_checker.trinka_grammar_checker import (
 
 
 def get_grammar_checker_handler() -> GrammarCheckerHandler:
+    """
+    Фабричный метод для инициализации обработчика проверки грамматики
+
+    Создает реализации клиентов TextGears и Trinka, затем возвращает
+    общий обработчик для унифицированной работы с ними
+
+    Returns:
+        GrammarCheckerHandler: объект обработчика с подключенными сервисами
+    """
     text_gears: TextGearsRapidApi = TextGearsRapidApi()
     trinka_grammar_checker: TrinkaGrammarCheckerRapidApi = (
         TrinkaGrammarCheckerRapidApi()

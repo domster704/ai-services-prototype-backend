@@ -10,7 +10,6 @@ from src.infrastructure.depends import get_grammar_checker_handler
 from src.infrastructure.exceptions import InfrastructureError, RapidApiError
 from src.presentation.api.v1.grammar_checker.analysis.dto import (
     ComparisonResultDTO,
-    to_dto_result,
 )
 
 router_grammar_checker_analysis = APIRouter(
@@ -23,8 +22,29 @@ class GrammarCheckBody(BaseModel):
     text: str
     language: str
 
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "text": "Exmaple text with errrosr",
+                    "language": "en",
+                }
+            ]
+        }
+    }
 
-@router_grammar_checker_analysis.post("/grammar", status_code=200)
+
+@router_grammar_checker_analysis.post(
+    "/grammar",
+    status_code=200,
+    summary="Унифицированная проверка текста",
+    description="""
+Выполняет проверку текста сразу в двух сервисах: TextGears и Trinka.
+Возвращает:
+- ошибки, найденные обоими сервисами
+- уникальные ошибки каждого из них
+""",
+)
 async def translate(
     body: GrammarCheckBody,
     handler: GrammarCheckerHandler = Depends(get_grammar_checker_handler),
