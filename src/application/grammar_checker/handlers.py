@@ -30,13 +30,13 @@ class GrammarCheckerHandler:
     """
 
     def __init__(
-        self, text_gears: ITextGears, trinka_grammar_checker: ITrinkaGrammarChecker
+            self, text_gears: ITextGears, trinka_grammar_checker: ITrinkaGrammarChecker
     ):
         self.text_gears = text_gears
         self.trinka_grammar_checker = trinka_grammar_checker
 
     async def grammar_check_text_gears(
-        self, text: str, language: str
+            self, text: str, language: str
     ) -> TextGearsGrammarCheckerObject:
         """
         Проверка текста с помощью TextGears API
@@ -86,9 +86,9 @@ class GrammarCheckerHandler:
         return grammar_checked_object
 
     def unified_analyze(
-        self,
-        tg_result: TextGearsGrammarCheckerObject,
-        trinka_result: TrinkaCheckResult,
+            self,
+            text_gears_result: TextGearsGrammarCheckerObject,
+            trinka_result: TrinkaCheckResult,
     ) -> UnifiedErrorComparison:
         """
         Унифицированный анализ результатов двух сервисов (TextGears и Trinka)
@@ -99,53 +99,61 @@ class GrammarCheckerHandler:
         - ошибки, уникальные для Trinka (only_trinka)
 
         Args:
-            tg_result (TextGearsGrammarCheckerObject): результат проверки от TextGears
+            text_gears_result (TextGearsGrammarCheckerObject): результат проверки от TextGears
             trinka_result (TrinkaCheckResult): результат проверки от Trinka
 
         Returns:
             UnifiedErrorComparison: результат сравнения ошибок
         """
-        print(tg_result)
+        print(text_gears_result)
         print(trinka_result)
         tg_errors: list[UnifiedError] = []
-        for e in tg_result.response.errors:
+        for error in text_gears_result.response.errors:
             tg_errors.append(
                 UnifiedError(
-                    offset=e.offset,
-                    length=e.length,
-                    covered_text=e.bad,
-                    suggestions=e.better,
-                    comment=next(iter(e.description.values()), None),
-                    category=e.type.value,
+                    offset=error.offset,
+                    length=error.length,
+                    covered_text=error.bad,
+                    suggestions=error.better,
+                    comment=next(iter(error.description.values()), None),
+                    category=error.type.value,
                     provider=UnifiedErrorProvider.TEXT_GEARS,
                 )
             )
 
         trinka_errors: list[UnifiedError] = []
-        for sent in trinka_result.sentences:
-            for r in sent.result:
+        for sentence in trinka_result.sentences:
+            for result in sentence.result:
                 trinka_errors.append(
                     UnifiedError(
-                        offset=sent.begin + r.start_index,
-                        length=r.end_index - r.start_index,
-                        covered_text=r.covered_text,
-                        suggestions=r.output,
-                        comment=r.comment[0] if r.comment else None,
-                        category=r.error_category[0] if r.error_category else "unknown",
+                        offset=sentence.begin + result.start_index,
+                        length=result.end_index - result.start_index,
+                        covered_text=result.covered_text,
+                        suggestions=result.output,
+                        comment=result.comment[0] if result.comment else None,
+                        category=result.error_category[0] if result.error_category else "",
                         provider=UnifiedErrorProvider.TRINKA,
                     )
                 )
 
-        def key(err: UnifiedError) -> tuple[int, int, str]:
-            return err.offset, err.length, err.covered_text.lower()
+        def key(error: UnifiedError) -> tuple[int, int, str]:
+            """
+            Функция сравнения ключевых полей для отождествления ошибок
+            Args:
+                error (UnifiedError): объект ошибки
 
-        tg_keys = {key(e): e for e in tg_errors}
+            Returns:
+                tuple[int, int, str]: ключ в виде кортежа
+            """
+            return error.offset, error.length, error.covered_text.lower()
+
+        text_gears_keys = {key(e): e for e in tg_errors}
         trinka_keys = {key(e): e for e in trinka_errors}
 
-        common = [err for k, err in tg_keys.items() if k in trinka_keys]
-        only_tg = [err for k, err in tg_keys.items() if k not in trinka_keys]
-        only_trinka = [err for k, err in trinka_keys.items() if k not in tg_keys]
+        common = [error for key, error in text_gears_keys.items() if key in trinka_keys]
+        only_text_gears = [error for key, error in text_gears_keys.items() if key not in trinka_keys]
+        only_trinka = [error for key, error in trinka_keys.items() if key not in text_gears_keys]
 
         return UnifiedErrorComparison(
-            common=common, only_text_gears=only_tg, only_trinka=only_trinka
+            common=common, only_text_gears=only_text_gears, only_trinka=only_trinka
         )
