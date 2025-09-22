@@ -30,13 +30,13 @@ class GrammarCheckerHandler:
     """
 
     def __init__(
-            self, text_gears: ITextGears, trinka_grammar_checker: ITrinkaGrammarChecker
+        self, text_gears: ITextGears, trinka_grammar_checker: ITrinkaGrammarChecker
     ):
         self.text_gears = text_gears
         self.trinka_grammar_checker = trinka_grammar_checker
 
     async def grammar_check_text_gears(
-            self, text: str, language: str
+        self, text: str, language: str
     ) -> TextGearsGrammarCheckerObject:
         """
         Проверка текста с помощью TextGears API
@@ -86,9 +86,9 @@ class GrammarCheckerHandler:
         return grammar_checked_object
 
     def unified_analyze(
-            self,
-            text_gears_result: TextGearsGrammarCheckerObject,
-            trinka_result: TrinkaCheckResult,
+        self,
+        text_gears_result: TextGearsGrammarCheckerObject,
+        trinka_result: TrinkaCheckResult,
     ) -> UnifiedErrorComparison:
         """
         Унифицированный анализ результатов двух сервисов (TextGears и Trinka)
@@ -131,7 +131,9 @@ class GrammarCheckerHandler:
                         covered_text=result.covered_text,
                         suggestions=result.output,
                         comment=result.comment[0] if result.comment else None,
-                        category=result.error_category[0] if result.error_category else "",
+                        category=(
+                            result.error_category[0] if result.error_category else ""
+                        ),
                         provider=UnifiedErrorProvider.TRINKA,
                     )
                 )
@@ -151,8 +153,12 @@ class GrammarCheckerHandler:
         trinka_keys = {key(e): e for e in trinka_errors}
 
         common = [error for key, error in text_gears_keys.items() if key in trinka_keys]
-        only_text_gears = [error for key, error in text_gears_keys.items() if key not in trinka_keys]
-        only_trinka = [error for key, error in trinka_keys.items() if key not in text_gears_keys]
+        only_text_gears = [
+            error for key, error in text_gears_keys.items() if key not in trinka_keys
+        ]
+        only_trinka = [
+            error for key, error in trinka_keys.items() if key not in text_gears_keys
+        ]
 
         return UnifiedErrorComparison(
             common=common, only_text_gears=only_text_gears, only_trinka=only_trinka
